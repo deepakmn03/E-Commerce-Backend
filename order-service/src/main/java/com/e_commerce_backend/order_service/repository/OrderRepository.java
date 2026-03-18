@@ -9,5 +9,5 @@ import com.e_commerce_backend.order_service.entity.Order;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
-    List<Order> findByUserUserId(Integer userId);
+    // List<Order> findByUserUserId(Integer userId);
 }

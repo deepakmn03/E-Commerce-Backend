@@ -19,6 +19,8 @@ import com.e_commerce_backend.user_service.entity.User;
 import com.e_commerce_backend.user_service.service.UserService;
 
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -26,6 +28,11 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @GetMapping("/status")
+    public ResponseEntity<String>status(){
+        return ResponseEntity.ok("Heloooo, user service is up now!!");
+    }
 
     @GetMapping("/list/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Integer id){

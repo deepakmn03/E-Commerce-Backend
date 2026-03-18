@@ -1,0 +1,21 @@
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/order-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  web:
+    error:
+      include-message: always
+      include-stacktrace: never  # 'never' for production, 'on_param' for development
+
+server:
+  port: 8081
