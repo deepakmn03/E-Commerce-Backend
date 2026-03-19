@@ -13,9 +13,10 @@ public class OrderRequestDTO {
 
     @NotNull
     @Positive
-    private Long orderValue;
+    private Double orderValue;
 
     @NotNull
-    private int userId;
+    @Positive
+    private Long userId;
 }
 

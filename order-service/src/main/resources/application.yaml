@@ -18,4 +18,4 @@ spring:
       include-stacktrace: never  # 'never' for production, 'on_param' for development
 
 server:
-  port: 8081
+  port: 8083

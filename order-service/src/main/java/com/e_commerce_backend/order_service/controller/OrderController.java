@@ -33,16 +33,16 @@ public class OrderController {
     }
 
     @GetMapping("/get/{orderId}")
-    public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable int orderId){
+    public ResponseEntity<OrderResponseDTO> getOrder(@PathVariable Long orderId){
         OrderResponseDTO orderResponseDTO = orderService.getOrderByOrderId(orderId);
         return ResponseEntity.ok(orderResponseDTO);
     }
 
-    // @GetMapping("/get/user/{userId}")
-    // public ResponseEntity<List<OrderResponseDTO>> getAllOrdersByUserId(@PathVariable int userId){
-    //     List<OrderResponseDTO>orderResponseDTOs = orderService.getOrdersByUserId(userId);
-    //     return ResponseEntity.ok(orderResponseDTOs);
-    // }
+    @GetMapping("/get/user/{userId}")
+    public ResponseEntity<List<OrderResponseDTO>> getAllOrdersByUserId(@PathVariable Long userId){
+        List<OrderResponseDTO>orderResponseDTOs = orderService.getOrdersByUserId(userId);
+        return ResponseEntity.ok(orderResponseDTOs);
+    }
 
     @GetMapping("/get")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders(){
@@ -51,15 +51,15 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createOrder(@Valid @RequestBody OrderRequestDTO createOrderDTO){
-        orderService.creatOrder(createOrderDTO.getOrderValue(), createOrderDTO.getUserId());
-        return ResponseEntity.ok("A new order has been created");
+    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO createOrderDTO){
+        OrderResponseDTO orderResponseDTO = orderService.creatOrder(createOrderDTO.getOrderValue(), createOrderDTO.getUserId());
+        return ResponseEntity.ok(orderResponseDTO);
     }
 
     @DeleteMapping("/remove/{orderId}")
-    public ResponseEntity<String> deleteOrder(@PathVariable int orderId){
-        orderService.deleteOrder(orderId);
-        return ResponseEntity.ok("Order has been deleted with orderId:  " + orderId);
+    public ResponseEntity<String> deleteOrder(@PathVariable Long orderId){
+        String result = orderService.deleteOrder(orderId);
+        return ResponseEntity.ok(result);
     }
 
     // @PatchMapping(value = "/update/{orderId}", consumes = "application/json", produces = "application/json")

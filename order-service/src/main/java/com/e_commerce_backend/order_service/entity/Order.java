@@ -4,24 +4,44 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "orders")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "orderId")
-    private int orderId;
-
+    private Long orderId;
+    
     @Column(nullable = false)
-    private Long orderValue;
-
-    @Column(name = "user_id", nullable = false)
-    private int userId;
-
+    private Long userId;
+    
+    @Column(nullable = false)
+    private Double orderValue;
+    
+    @Column(nullable = false)
+    private String status;
+    
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+    
+    @Column
+    private LocalDateTime updatedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+        status = "PENDING";
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
 

@@ -32,7 +32,7 @@ public class OrderService {
     private UserClient userClient;
 
 
-    public OrderResponseDTO getOrderByOrderId(int orderId){
+    public OrderResponseDTO getOrderByOrderId(Long orderId){
         com.e_commerce_backend.order_service.entity.Order order = orderRepository.findById(orderId)
                       .orElseThrow(() -> new OrderNotFoundException(orderId));
         return orderMapper.toDTO(order);
@@ -43,17 +43,17 @@ public class OrderService {
         return orderMapper.toDTOList(orders);
     }
 
-    public Order createOrder(Order order) {
-        log.info("Initiating order creation. Verifying user ID: {} with user-service...", order.getUserId());
+    public OrderResponseDTO creatOrder(Double orderValue, Long userId) {
+        log.info("Initiating order creation. Verifying user ID: {} with user-service...", userId);
 
         try {
             // 1. Make the synchronous HTTP call over the network
-            UserDTO user = userClient.getUserById(order.getUserId());
-            log.info("Success! Verified user exists: {}", user.getUsername());
+            UserDTO user = userClient.getUserById(userId);
+            log.info("Success! Verified user exists with ID: {}", user.getId());
             
         } catch (FeignException.NotFound e) {
             // 2. If user-service returns a 404 Not Found
-            log.warn("Order rejected: User ID {} does not exist in user-service.", order.getUserId());
+            log.warn("Order rejected: User ID {} does not exist in user-service.", userId);
             throw new RuntimeException("Cannot create order: User not found.");
             
         } catch (FeignException e) {
@@ -64,7 +64,12 @@ public class OrderService {
 
         // 4. If everything is fine, save the order to the order-service database
         log.info("Saving order to database...");
-        return orderRepository.save(order);
+        Order order = new Order();
+        order.setUserId(userId);
+        order.setOrderValue(orderValue);
+        Order savedOrder = orderRepository.save(order);
+        log.info("Order saved successfully with order ID: {}", savedOrder.getOrderId());
+        return orderMapper.toDTO(savedOrder);
     }
     // public OrderResponseDTO updateOrder(int orderId, OrderRequestDTO orderDetails){
     //    Order order = orderRepository.findById(orderId)
@@ -85,10 +90,15 @@ public class OrderService {
     //    return orderMapper.toDTO(updatedOrder);
     // }
 
-    public String deleteOrder(int orderId){
+    public String deleteOrder(Long orderId){
         orderRepository.deleteById(orderId);
         log.warn("Order has been removed for order ID: {}", orderId);
         return "Order with order ID: " + orderId + " has been deleted.";
-       }
+    }
+    
+    public List<OrderResponseDTO> getOrdersByUserId(Long userId){
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orderMapper.toDTOList(orders);
+    }
     
 }

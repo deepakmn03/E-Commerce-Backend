@@ -1,12 +1,13 @@
 package com.e_commerce_backend.order_service.exception;
 
-import org.springframework.validation.BindException;
-
-public abstract class EntityNotFoundException extends RuntimeException {
-    public EntityNotFoundException(String message){
+public class EntityNotFoundException extends RuntimeException {
+    
+    public EntityNotFoundException(String message) {
         super(message);
     }
 
-    protected abstract BindException getBindingResult();   
+    public EntityNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
