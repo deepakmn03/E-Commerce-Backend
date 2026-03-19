@@ -1,19 +1,17 @@
 package com.e_commerce_backend.user_service.service;
-import org.springframework.stereotype.Service;
 
+import com.e_commerce_backend.user_service.dto.UserRequestDTO;
 import com.e_commerce_backend.user_service.dto.UserResponseDTO;
 import com.e_commerce_backend.user_service.entity.User;
 import com.e_commerce_backend.user_service.exception.UserNotFoundException;
 import com.e_commerce_backend.user_service.mapper.UserMapper;
 import com.e_commerce_backend.user_service.repository.UserRepository;
-
-import jakarta.transaction.Transactional;
-import lombok.extern.log4j.Log4j2;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Log4j2
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class UserService {
 
@@ -23,30 +21,108 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
-    
-    @Transactional
-    public UserResponseDTO getUserById(int id){
-        User user = userRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(id));
-        return userMapper.toDTO(user);            
+    /**
+     * Create a new user
+     *
+     * @param userRequestDTO the user request DTO containing user details
+     * @return UserResponseDTO with created user details
+     */
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new IllegalArgumentException("User with email already exists: " + userRequestDTO.getEmail());
+        }
+        if (userRepository.existsByPhone(userRequestDTO.getPhone())) {
+            throw new IllegalArgumentException("User with phone already exists: " + userRequestDTO.getPhone());
+        }
+
+        User user = userMapper.toEntity(userRequestDTO);
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponseDTO(savedUser);
     }
 
-    @Transactional
-    public List<UserResponseDTO> getAllUsers(){
-        List<User> userList = userRepository.findAll();
-        return userMapper.toDTOList(userList);
+    /**
+     * Get user by user ID
+     *
+     * @param userId the user ID
+     * @return UserResponseDTO
+     */
+    public UserResponseDTO getUserById(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        return userMapper.toResponseDTO(user);
     }
 
-    public String createUser(User user){
-        userRepository.save(user);
-        log.info("A new user has been created with id: {}", user.getUserId());
-        return "User with userId: "+ user.getUserId() + " and name: "  + user.getUsername() + "has been created";
+    /**
+     * Get user by email
+     *
+     * @param email the user email
+     * @return UserResponseDTO
+     */
+    public UserResponseDTO getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+        return userMapper.toResponseDTO(user);
     }
 
-    public String deleteUserById(int userId){
-        userRepository.deleteById(userId);
-        log.warn("A user with ID: {} has been deleted", userId);
-        return "User with user id: " + userId + " has been removed";
+    /**
+     * Get all users
+     *
+     * @return List of UserResponseDTOs
+     */
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
+
+    /**
+     * Update a user
+     *
+     * @param userId the user ID
+     * @param userRequestDTO the updated user request DTO
+     * @return UserResponseDTO with updated user details
+     */
+    public UserResponseDTO updateUser(int userId, UserRequestDTO userRequestDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // Check if email is being changed and already exists
+        if (!user.getEmail().equals(userRequestDTO.getEmail()) && 
+            userRepository.existsByEmail(userRequestDTO.getEmail())) {
+            throw new IllegalArgumentException("User with email already exists: " + userRequestDTO.getEmail());
+        }
+
+        // Check if phone is being changed and already exists
+        if (!user.getPhone().equals(userRequestDTO.getPhone()) && 
+            userRepository.existsByPhone(userRequestDTO.getPhone())) {
+            throw new IllegalArgumentException("User with phone already exists: " + userRequestDTO.getPhone());
+        }
+
+        userMapper.updateUserFromDTO(userRequestDTO, user);
+        User updatedUser = userRepository.save(user);
+        return userMapper.toResponseDTO(updatedUser);
+    }
+
+    /**
+     * Delete a user
+     *
+     * @param userId the user ID
+     */
+    public void deleteUser(int userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        userRepository.delete(user);
+    }
+
+    /**
+     * Check if user exists by user ID
+     *
+     * @param userId the user ID
+     * @return true if user exists, false otherwise
+     */
+    public boolean userExists(int userId) {
+        return userRepository.existsById(userId);
+    }
+
 }
 

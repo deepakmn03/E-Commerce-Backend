@@ -8,11 +8,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.e_commerce_backend.order_service.dto.OrderRequestDTO;
 import com.e_commerce_backend.order_service.dto.OrderResponseDTO;
 import com.e_commerce_backend.order_service.service.OrderService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/order")
@@ -45,11 +50,11 @@ public class OrderController {
         return ResponseEntity.ok(orderResponseDTOs);
     }
 
-    // @PostMapping("/create")
-    // public ResponseEntity<String> createOrder(@Valid @RequestBody OrderRequestDTO createOrderDTO){
-    //     orderService.creatOrder(createOrderDTO.getOrderValue(), createOrderDTO.getUserId());
-    //     return ResponseEntity.ok("A new order has been created");
-    // }
+    @PostMapping("/create")
+    public ResponseEntity<String> createOrder(@Valid @RequestBody OrderRequestDTO createOrderDTO){
+        orderService.creatOrder(createOrderDTO.getOrderValue(), createOrderDTO.getUserId());
+        return ResponseEntity.ok("A new order has been created");
+    }
 
     @DeleteMapping("/remove/{orderId}")
     public ResponseEntity<String> deleteOrder(@PathVariable int orderId){

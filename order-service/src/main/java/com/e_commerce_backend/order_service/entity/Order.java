@@ -20,5 +20,8 @@ public class Order {
     @Column(nullable = false)
     private Long orderValue;
 
+    @Column(name = "user_id", nullable = false)
+    private int userId;
+
 }
 

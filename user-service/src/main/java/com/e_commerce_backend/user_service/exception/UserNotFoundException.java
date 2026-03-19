@@ -1,19 +1,18 @@
 package com.e_commerce_backend.user_service.exception;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindException;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class UserNotFoundException extends EntityNotFoundException {
 
-    public UserNotFoundException(int id){
-        super("User not found with ID: " + id);
+    public UserNotFoundException(int userId) {
+        super("User not found with userId: " + userId);
     }
 
-    @Override
-    protected BindException getBindingResult() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBindingResult'");
+    public UserNotFoundException(String email) {
+        super("User not found with email: " + email);
     }
+
+    public UserNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
 

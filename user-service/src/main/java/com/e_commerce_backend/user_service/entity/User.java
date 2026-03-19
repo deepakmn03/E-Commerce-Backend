@@ -23,15 +23,34 @@ public class User {
     @Column(name = "userId")
     private int userId;
 
-    @Column(nullable = false, unique = true, length = 30)
-    private String username;
+    @Column(nullable = false)
+    private String firstName;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, unique = true)
+    private String phone;
 
     @Column(nullable = false)
     private String address;
+
+    @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private String state;
+
+    @Column(nullable = false)
+    private String zipCode;
+
+    @Column(nullable = false)
+    private String country;
+
 }

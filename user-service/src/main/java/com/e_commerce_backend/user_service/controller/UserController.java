@@ -1,26 +1,15 @@
 package com.e_commerce_backend.user_service.controller;
 
-import java.util.List;
-
+import com.e_commerce_backend.user_service.dto.UserRequestDTO;
+import com.e_commerce_backend.user_service.dto.UserResponseDTO;
+import com.e_commerce_backend.user_service.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.e_commerce_backend.user_service.dto.UserRequestDTO;
-import com.e_commerce_backend.user_service.dto.UserResponseDTO;
-import com.e_commerce_backend.user_service.entity.User;
-import com.e_commerce_backend.user_service.service.UserService;
-
-import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -29,39 +18,100 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    /**
+     * Health check endpoint
+     *
+     * @return status message
+     */
     @GetMapping("/status")
-    public ResponseEntity<String>status(){
-        return ResponseEntity.ok("Heloooo, user service is up now!!");
+    public ResponseEntity<String> userServiceStatus() {
+        System.out.println("User service is live now!!" + "\n" + "Current thread is: " + Thread.currentThread().getName());
+        return ResponseEntity.ok("User service is live now!!!");
     }
 
-    @GetMapping("/list/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Integer id){
-            UserResponseDTO userDTO = userService.getUserById(id);
-            return ResponseEntity.ok(userDTO);
+    /**
+     * Create a new user
+     *
+     * @param userRequestDTO the user request DTO
+     * @return response message with HTTP 201 status
+     */
+    @PostMapping("/create")
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO createdUser = userService.createUser(userRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
-        List<UserResponseDTO> userDTOList = userService.getAllUsers();
-        return ResponseEntity.ok(userDTOList);
+    /**
+     * Get user by user ID
+     *
+     * @param userId the user ID
+     * @return UserResponseDTO
+     */
+    @GetMapping("/get/{userId}")
+    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable int userId) {
+        UserResponseDTO user = userService.getUserById(userId);
+        return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> addUser(@Valid @RequestBody UserRequestDTO createUserDTO){
-        User user = new User();
-        user.setUsername(createUserDTO.getUsername());
-        user.setEmail(createUserDTO.getEmail());
-        user.setPassword(createUserDTO.getPassword());
-        user.setAddress(createUserDTO.getAddress());
-        userService.createUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("A new user has created.");
+    /**
+     * Get user by email
+     *
+     * @param email the user email
+     * @return UserResponseDTO
+     */
+    @GetMapping("/get/email/{email}")
+    public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
+        UserResponseDTO user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
     }
 
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable int userId){
-        userService.deleteUserById(userId);
-        return ResponseEntity.ok("User with userId: " + userId + " has been removed.");
+    /**
+     * Get all users
+     *
+     * @return list of UserResponseDTOs
+     */
+    @GetMapping("/get")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
-    
+
+    /**
+     * Update a user
+     *
+     * @param userId the user ID
+     * @param userRequestDTO the updated user request DTO
+     * @return UserResponseDTO with updated user details
+     */
+    @PatchMapping("/update/{userId}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable int userId, 
+                                                      @Valid @RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO updatedUser = userService.updateUser(userId, userRequestDTO);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    /**
+     * Delete a user
+     *
+     * @param userId the user ID
+     * @return success message
+     */
+    @DeleteMapping("/remove/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable int userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok("User has been deleted with userId: " + userId);
+    }
+
+    /**
+     * Check if user exists
+     *
+     * @param userId the user ID
+     * @return boolean indicating if user exists
+     */
+    @GetMapping("/exists/{userId}")
+    public ResponseEntity<Boolean> userExists(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.userExists(userId));
+    }
+
 }
 

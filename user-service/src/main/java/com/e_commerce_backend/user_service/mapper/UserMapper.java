@@ -1,18 +1,22 @@
 package com.e_commerce_backend.user_service.mapper;
 
-import java.util.List;
-
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
+import com.e_commerce_backend.user_service.dto.UserRequestDTO;
 import com.e_commerce_backend.user_service.dto.UserResponseDTO;
 import com.e_commerce_backend.user_service.entity.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    @Mapping(source = "userId", target = "id")
-    UserResponseDTO toDTO(User user);
+    @Mapping(target = "userId", ignore = true)
+    User toEntity(UserRequestDTO userRequestDTO);
 
-    List<UserResponseDTO> toDTOList(List<User>user);
+    UserResponseDTO toResponseDTO(User user);
+
+    @Mapping(target = "userId", ignore = true)
+    void updateUserFromDTO(UserRequestDTO userRequestDTO, @MappingTarget User user);
+
 }
