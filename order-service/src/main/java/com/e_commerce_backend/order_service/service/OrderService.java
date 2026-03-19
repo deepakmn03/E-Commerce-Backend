@@ -1,14 +1,14 @@
 package com.e_commerce_backend.order_service.service;
 
-
 import lombok.extern.log4j.Log4j2;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.e_commerce_backend.order_service.client.UserClient;
+import com.e_commerce_backend.order_service.dto.OrderRequestDTO;
 import com.e_commerce_backend.order_service.dto.OrderResponseDTO;
 import com.e_commerce_backend.order_service.dto.UserDTO;
 import com.e_commerce_backend.order_service.entity.Order;
@@ -31,74 +31,71 @@ public class OrderService {
     @Autowired
     private UserClient userClient;
 
+    // Create a new order
+    public OrderResponseDTO createOrder(OrderRequestDTO orderRequestDTO) {
+        Long userId = orderRequestDTO.getUserId();
+        
+        // Validate user exists in user service
+        try {
+            UserDTO user = userClient.getUserById(userId);
+            if (user == null) {
+                throw new RuntimeException("User with ID: " + userId + " does not exist");
+            }
+            log.info("User validation successful for userId: {}", userId);
+        } catch (FeignException.NotFound e) {
+            log.error("User not found with userId: {}", userId);
+            throw new RuntimeException("User with ID: " + userId + " does not exist in the system", e);
+        } catch (FeignException e) {
+            log.error("Error communicating with User Service for userId: {}", userId);
+            throw new RuntimeException("Unable to verify user. User service is unavailable", e);
+        }
+        
+        // Create order after user validation
+        Order order = orderMapper.toEntity(orderRequestDTO);
+        Order savedOrder = orderRepository.save(order);
+        log.info("Order created successfully for userId: {}, orderId: {}", userId, savedOrder.getOrderId());
+        
+        return orderMapper.toDTO(savedOrder);
+    }
 
-    public OrderResponseDTO getOrderByOrderId(Long orderId){
-        com.e_commerce_backend.order_service.entity.Order order = orderRepository.findById(orderId)
+    // Get order by order ID
+    public OrderResponseDTO getOrderByOrderId(Long orderId) {
+        Order order = orderRepository.findById(orderId)
                       .orElseThrow(() -> new OrderNotFoundException(orderId));
         return orderMapper.toDTO(order);
     }
 
-    public List<OrderResponseDTO> getAllOrders(){
+    // Get all orders
+    public List<OrderResponseDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
         return orderMapper.toDTOList(orders);
     }
 
-    public OrderResponseDTO creatOrder(Double orderValue, Long userId) {
-        log.info("Initiating order creation. Verifying user ID: {} with user-service...", userId);
-
-        try {
-            // 1. Make the synchronous HTTP call over the network
-            UserDTO user = userClient.getUserById(userId);
-            log.info("Success! Verified user exists with ID: {}", user.getId());
-            
-        } catch (FeignException.NotFound e) {
-            // 2. If user-service returns a 404 Not Found
-            log.warn("Order rejected: User ID {} does not exist in user-service.", userId);
-            throw new RuntimeException("Cannot create order: User not found.");
-            
-        } catch (FeignException e) {
-            // 3. If user-service is completely down or returns a 500 error
-            log.error("Communication with user-service failed!", e);
-            throw new RuntimeException("Service unavailable. Please try again later.");
-        }
-
-        // 4. If everything is fine, save the order to the order-service database
-        log.info("Saving order to database...");
-        Order order = new Order();
-        order.setUserId(userId);
-        order.setOrderValue(orderValue);
-        Order savedOrder = orderRepository.save(order);
-        log.info("Order saved successfully with order ID: {}", savedOrder.getOrderId());
-        return orderMapper.toDTO(savedOrder);
+    // Get all orders by user ID
+    public List<OrderResponseDTO> getOrdersByUserId(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+            .map(orderMapper::toDTO)
+            .collect(Collectors.toList());
     }
-    // public OrderResponseDTO updateOrder(int orderId, OrderRequestDTO orderDetails){
-    //    Order order = orderRepository.findById(orderId)
-    //                  .orElseThrow(() -> new RuntimeException("Order with ID: " + orderId + " not found"));
-        
-    //     // Update order value
-    //     order.setOrderValue(orderDetails.getOrderValue());
-        
-    //     // Update user if userId is provided
-    //     if(orderDetails.getUserId() > 0){
-    //         User user = userRepository.findById(orderDetails.getUserId())
-    //                     .orElseThrow(() -> new RuntimeException("User with ID: " + orderDetails.getUserId() + " not found"));
-    //         order.setUser(user);
-    //     }
-        
-    //     Order updatedOrder = orderRepository.save(order);
-    //     log.warn("Order has been updated with order ID: {}", orderId);
-    //    return orderMapper.toDTO(updatedOrder);
-    // }
-
-    public String deleteOrder(Long orderId){
+    
+    // Delete order by ID
+    public String deleteOrder(Long orderId) {
+        if (!orderRepository.existsById(orderId)) {
+            throw new OrderNotFoundException(orderId);
+        }
         orderRepository.deleteById(orderId);
         log.warn("Order has been removed for order ID: {}", orderId);
         return "Order with order ID: " + orderId + " has been deleted.";
     }
-    
-    public List<OrderResponseDTO> getOrdersByUserId(Long userId){
-        List<Order> orders = orderRepository.findByUserId(userId);
-        return orderMapper.toDTOList(orders);
+
+    // Update order status
+    public OrderResponseDTO updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new OrderNotFoundException(orderId));
+        order.setStatus(status);
+        Order updatedOrder = orderRepository.save(order);
+        log.info("Order status updated for orderId: {}, newStatus: {}", orderId, status);
+        return orderMapper.toDTO(updatedOrder);
     }
-    
 }

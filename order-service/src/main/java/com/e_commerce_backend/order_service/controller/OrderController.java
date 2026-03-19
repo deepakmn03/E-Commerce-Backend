@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,8 +51,8 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO createOrderDTO){
-        OrderResponseDTO orderResponseDTO = orderService.creatOrder(createOrderDTO.getOrderValue(), createOrderDTO.getUserId());
+    public ResponseEntity<OrderResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO orderRequestDTO){
+        OrderResponseDTO orderResponseDTO = orderService.createOrder(orderRequestDTO);
         return ResponseEntity.ok(orderResponseDTO);
     }
 
@@ -62,10 +62,10 @@ public class OrderController {
         return ResponseEntity.ok(result);
     }
 
-    // @PatchMapping(value = "/update/{orderId}", consumes = "application/json", produces = "application/json")
-    // public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable int orderId, @Valid @RequestBody OrderRequestDTO orderRequestDTO){
-    //     OrderResponseDTO updatedOrder = orderService.updateOrder(orderId, orderRequestDTO);
-    //     return ResponseEntity.ok(updatedOrder);
-    // }
+    @PatchMapping("/update/{orderId}")
+    public ResponseEntity<OrderResponseDTO> updateOrder(@PathVariable Long orderId, @RequestBody String status){
+       OrderResponseDTO orderResponseDTO = orderService.updateOrderStatus(orderId, status);
+       return ResponseEntity.ok(orderResponseDTO);
+    }
 }
 
