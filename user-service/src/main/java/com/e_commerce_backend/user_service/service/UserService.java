@@ -1,7 +1,10 @@
 package com.e_commerce_backend.user_service.service;
 
+import com.e_commerce_backend.user_service.dto.LoginRequestDTO;
+import com.e_commerce_backend.user_service.dto.LoginResponseDTO;
 import com.e_commerce_backend.user_service.dto.UserRequestDTO;
 import com.e_commerce_backend.user_service.dto.UserResponseDTO;
+import com.e_commerce_backend.user_service.security.JwtUtil;
 import com.e_commerce_backend.user_service.entity.User;
 import com.e_commerce_backend.user_service.exception.UserNotFoundException;
 import com.e_commerce_backend.user_service.mapper.UserMapper;
@@ -29,6 +32,9 @@ public class UserService implements UserDetailsService{
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private JwtUtil jwtUtil;
     /**
      * Create a new user
      *
@@ -147,6 +153,32 @@ public class UserService implements UserDetailsService{
                 .password(user.getPassword())
                 .authorities(Collections.emptyList())
                 .build();
+    }
+
+    /**
+     * Authenticate user and generate JWT token
+     *
+     * @param loginRequestDTO email and password
+     * @return LoginResponseDTO with JWT token
+     */
+    public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+        User user = userRepository.findByEmail(loginRequestDTO.getEmail())
+            .orElseThrow(() -> new UserNotFoundException("User not found with email: " + loginRequestDTO.getEmail()));
+        
+        // Validate password
+        if (!passwordEncoder.matches(loginRequestDTO.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Invalid password");
+        }
+        
+        // Generate JWT token
+        String token = jwtUtil.generateToken(user.getEmail());
+        
+        return new LoginResponseDTO(
+            token,
+            "Login successful",
+            (long) user.getUserId(),
+            user.getEmail()
+        );
     }
 }
 

@@ -2,6 +2,8 @@ package com.e_commerce_backend.user_service.controller;
 
 import com.e_commerce_backend.user_service.dto.UserRequestDTO;
 import com.e_commerce_backend.user_service.dto.UserResponseDTO;
+import com.e_commerce_backend.user_service.dto.LoginRequestDTO;
+import com.e_commerce_backend.user_service.dto.LoginResponseDTO;
 import com.e_commerce_backend.user_service.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,13 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
         UserResponseDTO createdUser = userService.createUser(userRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+
+    //Login endpoint - returns JWT token
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        LoginResponseDTO loginResponse = userService.login(loginRequestDTO);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @GetMapping("/get/{userId}")
