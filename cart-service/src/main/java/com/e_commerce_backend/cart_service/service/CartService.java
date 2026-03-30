@@ -70,14 +70,14 @@ public class CartService {
                 });
 
         Optional<CartItem> existingItem = cartItemRepository
-                .findByCartIdAndProductId(cart.getCartId(), request.getProductId());
+                .findByCartIdAndProductId(cart.getId(), request.getProductId());
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + request.getQuantity());
             item.setUpdatedAt(LocalDateTime.now());
             cartItemRepository.save(item);
-            log.info("Updated existing cart item: {}", item.getItemId());
+            log.info("Updated existing cart item: {}", item.getId());
         } else {
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
@@ -150,7 +150,7 @@ public class CartService {
         Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + userId));
 
-        List<CartItem> items = cartItemRepository.findByCartId(cart.getCartId());
+        List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
         cartItemRepository.deleteAll(items);
         
         cart.getItems().clear();
