@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: notification-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/notification-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  security:
+    user:
+      name: admin
+      password: admin123
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationAndValidation12345
+  expiration: 86400000
+
+server:
+  port: 8086
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    root: INFO
+    com.e_commerce_backend: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
