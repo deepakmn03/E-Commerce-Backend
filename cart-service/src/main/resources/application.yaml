@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: cart-service
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ecommerce_cart_db
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+  security:
+    user:
+      name: admin
+      password: admin123
+
+server:
+  port: 8004
+  servlet:
+    context-path: /
+
+logging:
+  level:
+    root: INFO
+    com.e_commerce_backend: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"

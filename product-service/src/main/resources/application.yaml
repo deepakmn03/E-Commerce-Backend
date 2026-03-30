@@ -1,3 +1,24 @@
 spring:
   application:
     name: product-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/product-service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  web:
+    error:
+      include-message: always
+      include-stacktrace: never
+
+server:
+  port: 8084
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationAndValidation12345
+  expiration: 86400000
