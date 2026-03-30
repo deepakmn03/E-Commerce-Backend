@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CartItemDTO {
-    private Long itemId;
+    private Long id;
     private Long productId;
     private String productName;
     private Integer quantity;

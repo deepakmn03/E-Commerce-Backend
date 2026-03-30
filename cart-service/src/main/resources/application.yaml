@@ -9,14 +9,18 @@ spring:
       hibernate:
         format_sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecommerce_cart_db
+    url: jdbc:postgresql://localhost:5432/cart-service
     username: postgres
-    password: root
+    password: postgres
     driver-class-name: org.postgresql.Driver
   security:
     user:
       name: admin
       password: admin123
+
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationAndValidation12345
+  expiration: 86400000
 
 server:
   port: 8004
