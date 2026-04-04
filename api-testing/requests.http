@@ -3,16 +3,16 @@
 ### Install: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
 
 ### Variables
-@baseUrl = http://localhost:8080
+@baseUrl = http://localhost:8082
 @contentType = application/json
-@token = 
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyb2JlcnQubWlsbGVyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzc1MzM1OTk1LCJleHAiOjE3NzU0MjIzOTV9.4lMaNR60xOb5thj0xOPNzxf2_MNI5_yKLXDD1pdd_NY
 
 ### ==========================================
 ### 1. AUTHENTICATION TESTS
 ### ==========================================
 
 ### 1.1 Register New User
-POST {{baseUrl}}/api/v1/auth/register
+POST {{baseUrl}}/api/user/create
 Content-Type: {{contentType}}
 
 {
@@ -32,12 +32,12 @@ Content-Type: {{contentType}}
 ###
 
 ### 1.2 Login User
-POST {{baseUrl}}/api/v1/auth/login
+POST {{baseUrl}}/api/user/login
 Content-Type: {{contentType}}
 
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "email": "robert.miller@example.com",
+  "password": "RobertPass404"
 }
 
 > {%
