@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  title: E-Commerce Backend APIs
+  version: 1.0.0
+  description: Complete E-Commerce microservices API specification
+  
+servers:
+  - url: http://localhost:8080
+    description: Local Development
+  - url: https://api.example.com
+    description: Production
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        price:
+          type: number
+        stock:
+          type: integer
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/v1/auth/login:
+    post:
+      tags: [Authentication]
+      summary: User Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+
+  /api/v1/products:
+    get:
+      tags: [Products]
+      summary: Get all products
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of products
+
+    post:
+      tags: [Products]
+      summary: Create product (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Product created
+
+  /api/v1/carts:
+    get:
+      tags: [Cart]
+      summary: Get user's cart
+      responses:
+        '200':
+          description: Cart contents
+
+  /api/v1/orders:
+    get:
+      tags: [Orders]
+      summary: Get user's orders
+      responses:
+        '200':
+          description: List of orders
+
+    post:
+      tags: [Orders]
+      summary: Create order
+      responses:
+        '201':
+          description: Order created
+
+  /health:
+    get:
+      tags: [System]
+      summary: Health check
+      responses:
+        '200':
+          description: Service is healthy
+      security: []

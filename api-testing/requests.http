@@ -1,0 +1,630 @@
+### E-Commerce Backend API - REST Client Testing
+### Use VS Code Extension: REST Client
+### Install: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+### Variables
+@baseUrl = http://localhost:8080
+@contentType = application/json
+@token = 
+
+### ==========================================
+### 1. AUTHENTICATION TESTS
+### ==========================================
+
+### 1.1 Register New User
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@example.com",
+  "password": "SecurePassword123!",
+  "firstName": "John",
+  "lastName": "Doe",
+  "phone": "+1234567890"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("userId", response.body.id);
+  }
+%}
+
+###
+
+### 1.2 Login User
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("token", response.body.token);
+    console.log("Token set: " + response.body.token.substring(0, 20) + "...");
+  }
+%}
+
+###
+
+### 1.3 Refresh Token
+POST {{baseUrl}}/api/v1/auth/refresh
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 2. USER MANAGEMENT TESTS
+### ==========================================
+
+### 2.1 Get All Users (Admin Only)
+GET {{baseUrl}}/api/v1/users?page=1&limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### 2.2 Get User by ID
+GET {{baseUrl}}/api/v1/users/1
+Authorization: Bearer {{token}}
+
+###
+
+### 2.3 Update User Profile
+PUT {{baseUrl}}/api/v1/users/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe Updated",
+  "phone": "+9876543210",
+  "address": "123 Main St, City, Country"
+}
+
+###
+
+### 2.4 Create New User (Admin Only)
+POST {{baseUrl}}/api/v1/users
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "email": "admin-created@example.com",
+  "firstName": "Admin",
+  "lastName": "Created",
+  "phone": "+1111111111",
+  "address": "Admin Address",
+  "role": "USER",
+  "status": "ACTIVE"
+}
+
+###
+
+### 2.5 Delete User (Admin Only)
+DELETE {{baseUrl}}/api/v1/users/2
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 3. PRODUCT MANAGEMENT TESTS
+### ==========================================
+
+### 3.1 Get All Products
+GET {{baseUrl}}/api/v1/products?page=1&limit=20
+Authorization: Bearer {{token}}
+
+###
+
+### 3.2 Get Products with Filters
+GET {{baseUrl}}/api/v1/products?page=1&limit=20&category=electronics&minPrice=100&maxPrice=1000
+Authorization: Bearer {{token}}
+
+###
+
+### 3.3 Search Products
+GET {{baseUrl}}/api/v1/products?search=laptop&limit=10
+Authorization: Bearer {{token}}
+
+###
+
+### 3.4 Get Product by ID
+GET {{baseUrl}}/api/v1/products/1
+Authorization: Bearer {{token}}
+
+###
+
+### 3.5 Create Product (Admin Only)
+POST {{baseUrl}}/api/v1/products
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Wireless Headphones Pro",
+  "description": "High-quality wireless headphones with noise cancellation",
+  "price": 299.99,
+  "stock": 50,
+  "category": "electronics",
+  "sku": "WHP-PROD-001",
+  "rating": 4.5,
+  "imageUrl": "https://example.com/images/headphones.jpg"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("productId", response.body.id);
+  }
+%}
+
+###
+
+### 3.6 Update Product (Admin Only)
+PUT {{baseUrl}}/api/v1/products/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "name": "Wireless Headphones Pro Updated",
+  "description": "Updated description",
+  "price": 249.99,
+  "stock": 75,
+  "category": "electronics",
+  "sku": "WHP-PROD-001",
+  "rating": 4.7
+}
+
+###
+
+### 3.7 Delete Product (Admin Only)
+DELETE {{baseUrl}}/api/v1/products/5
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 4. SHOPPING CART TESTS
+### ==========================================
+
+### 4.1 Get Current Cart
+GET {{baseUrl}}/api/v1/carts
+Authorization: Bearer {{token}}
+
+###
+
+### 4.2 Add Item to Cart
+POST {{baseUrl}}/api/v1/carts/items
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("cartItemId", response.body.items[0].id);
+  }
+%}
+
+###
+
+### 4.3 Add Another Item to Cart
+POST {{baseUrl}}/api/v1/carts/items
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "productId": 2,
+  "quantity": 1
+}
+
+###
+
+### 4.4 Update Cart Item Quantity
+PUT {{baseUrl}}/api/v1/carts/items/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "quantity": 5
+}
+
+###
+
+### 4.5 Remove Item from Cart
+DELETE {{baseUrl}}/api/v1/carts/items/1
+Authorization: Bearer {{token}}
+
+###
+
+### 4.6 Clear Entire Cart
+DELETE {{baseUrl}}/api/v1/carts/clear
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 5. ORDER MANAGEMENT TESTS
+### ==========================================
+
+### 5.1 Create Order (from Cart)
+POST {{baseUrl}}/api/v1/orders
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "shippingAddress": "123 Main St, Springfield, IL 62701"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("orderId", response.body.id);
+    console.log("Order created: " + response.body.orderNumber);
+  }
+%}
+
+###
+
+### 5.2 Get User's Orders
+GET {{baseUrl}}/api/v1/orders?page=1&status=CONFIRMED
+Authorization: Bearer {{token}}
+
+###
+
+### 5.3 Get Order by ID
+GET {{baseUrl}}/api/v1/orders/1
+Authorization: Bearer {{token}}
+
+###
+
+### 5.4 Update Order Status (Admin Only)
+PUT {{baseUrl}}/api/v1/orders/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "status": "SHIPPED"
+}
+
+###
+
+### 5.5 Cancel Order
+POST {{baseUrl}}/api/v1/orders/1/cancel
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{}
+
+###
+
+### ==========================================
+### 6. PAYMENT TESTS
+### ==========================================
+
+### 6.1 Process Payment (Credit Card)
+POST {{baseUrl}}/api/v1/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "orderId": 1,
+  "amount": 299.99,
+  "paymentMethod": "CREDIT_CARD",
+  "cardToken": "tok_visa_4242424242424242"
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("paymentId", response.body.id);
+    client.global.set("transactionId", response.body.transactionId);
+  }
+%}
+
+###
+
+### 6.2 Process Payment (PayPal)
+POST {{baseUrl}}/api/v1/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "orderId": 2,
+  "amount": 150.00,
+  "paymentMethod": "PAYPAL",
+  "cardToken": "paypal_token_xxx"
+}
+
+###
+
+### 6.3 Get Payment Details
+GET {{baseUrl}}/api/v1/payments/1
+Authorization: Bearer {{token}}
+
+###
+
+### 6.4 Refund Payment (Admin Only)
+POST {{baseUrl}}/api/v1/payments/1/refund
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 7. INVENTORY TESTS
+### ==========================================
+
+### 7.1 Get All Inventory (Admin Only)
+GET {{baseUrl}}/api/v1/inventory?warehouse=warehouse-1
+Authorization: Bearer {{token}}
+
+###
+
+### 7.2 Get Product Inventory Levels
+GET {{baseUrl}}/api/v1/inventory/product/1
+Authorization: Bearer {{token}}
+
+###
+
+### 7.3 Update Inventory (Admin Only)
+PUT {{baseUrl}}/api/v1/inventory/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "warehouse": "warehouse-1",
+  "quantity": 100,
+  "reorderLevel": 20
+}
+
+###
+
+### ==========================================
+### 8. NOTIFICATION TESTS
+### ==========================================
+
+### 8.1 Get User's Notifications
+GET {{baseUrl}}/api/v1/notifications?read=false
+Authorization: Bearer {{token}}
+
+###
+
+### 8.2 Get Notifications by Type
+GET {{baseUrl}}/api/v1/notifications?type=ORDER_CONFIRMATION
+Authorization: Bearer {{token}}
+
+###
+
+### 8.3 Mark Notification as Read
+PUT {{baseUrl}}/api/v1/notifications/1
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{}
+
+###
+
+### 8.4 Mark All Notifications as Read
+PUT {{baseUrl}}/api/v1/notifications/read-all
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{}
+
+###
+
+### 8.5 Delete Notification
+DELETE {{baseUrl}}/api/v1/notifications/1
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### 9. SYSTEM HEALTH TESTS
+### ==========================================
+
+### 9.1 Health Check
+GET {{baseUrl}}/health
+
+###
+
+### 9.2 Liveness Probe (Kubernetes)
+GET {{baseUrl}}/health/live
+
+###
+
+### 9.3 Readiness Probe (Kubernetes)
+GET {{baseUrl}}/health/ready
+
+###
+
+### ==========================================
+### ERROR TEST CASES
+### ==========================================
+
+### Error Test 1: Unauthorized Access (No Token)
+GET {{baseUrl}}/api/v1/users/1
+
+###
+
+### Error Test 2: Invalid Token
+GET {{baseUrl}}/api/v1/users/1
+Authorization: Bearer invalid_token_here
+
+###
+
+### Error Test 3: Non-existent User
+GET {{baseUrl}}/api/v1/users/99999
+Authorization: Bearer {{token}}
+
+###
+
+### Error Test 4: Non-existent Product
+GET {{baseUrl}}/api/v1/products/99999
+Authorization: Bearer {{token}}
+
+###
+
+### Error Test 5: Insufficient Stock
+POST {{baseUrl}}/api/v1/carts/items
+Content-Type: {{contentType}}
+Authorization: Bearer {{token}}
+
+{
+  "productId": 1,
+  "quantity": 10000
+}
+
+###
+
+### Error Test 6: Invalid Email Format (Registration)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "invalid-email",
+  "password": "SecurePassword123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+###
+
+### Error Test 7: Weak Password (Registration)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "weakpass@example.com",
+  "password": "weak",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+###
+
+### ==========================================
+### BULK OPERATIONS (Sequential Tests)
+### ==========================================
+
+### Bulk Test 1: Complete User Journey
+### 1. Register
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "journey@example.com",
+  "password": "JourneyPassword123!",
+  "firstName": "Journey",
+  "lastName": "Tester",
+  "phone": "+1234567890"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("journeyUserId", response.body.id);
+    console.log("User registered: " + response.body.id);
+  }
+%}
+
+###
+
+### Bulk Test 2: Complete Purchase Journey
+### 1. Login and get token
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("journeyToken", response.body.token);
+  }
+%}
+
+###
+
+### Bulk Test 2 (cont): 2. Add to cart
+POST {{baseUrl}}/api/v1/carts/items
+Content-Type: {{contentType}}
+Authorization: Bearer {{journeyToken}}
+
+{
+  "productId": 1,
+  "quantity": 2
+}
+
+###
+
+### Bulk Test 2 (cont): 3. Create order
+POST {{baseUrl}}/api/v1/orders
+Content-Type: {{contentType}}
+Authorization: Bearer {{journeyToken}}
+
+{
+  "shippingAddress": "456 Oak Ave, Springfield, IL 62701"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("journeyOrderId", response.body.id);
+  }
+%}
+
+###
+
+### Bulk Test 2 (cont): 4. Process payment
+POST {{baseUrl}}/api/v1/payments
+Content-Type: {{contentType}}
+Authorization: Bearer {{journeyToken}}
+
+{
+  "orderId": {{journeyOrderId}},
+  "amount": 599.98,
+  "paymentMethod": "CREDIT_CARD",
+  "cardToken": "tok_visa_4242424242424242"
+}
+
+###
+
+### ==========================================
+### PERFORMANCE TEST - Concurrent Requests
+### (Uncomment to test)
+### ==========================================
+
+### Performance Test: Get products (High load)
+GET {{baseUrl}}/api/v1/products?page=1&limit=100
+Authorization: Bearer {{token}}
+
+###
+
+### ==========================================
+### USAGE INSTRUCTIONS
+### ==========================================
+
+# To use this file:
+# 1. Install VS Code Extension: REST Client (humao.rest-client)
+# 2. Replace {{baseUrl}} with your API URL
+# 3. Click "Send Request" or use Ctrl+Alt+R (or Cmd+Alt+R on Mac)
+# 4. Login first to get the {{token}} variable
+# 5. Use the token in subsequent requests
+
+# Variables are set in responses with:
+# > {%
+#   client.global.set("variableName", value);
+# %}
+
+# Comments:
+# Single line: #
+# Multiple lines: ### (creates request separator)
+
+# Tips:
+# - Click "Send Request" in editor (CodelLens link appears above request)
+# - View responses in a new tab
+# - Use "Generate Code Snippet" to convert to other languages
+# - Share requests.http file with team via Git

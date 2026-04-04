@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  eureka-server:
+    build:
+      context: ./eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - ecommerce
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - ecommerce
+
+networks:
+  ecommerce:
+    driver: bridge
