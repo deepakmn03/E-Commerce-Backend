@@ -39,6 +39,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/notification/status").permitAll()
+                .requestMatchers("/api/notification/internal/**").permitAll()
                 .requestMatchers("/api/notification/**").authenticated()
                 .anyRequest().authenticated()
             )

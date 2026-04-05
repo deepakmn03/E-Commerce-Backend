@@ -80,6 +80,18 @@ public class CartController {
         return ResponseEntity.ok(cart);
     }
 
+    @GetMapping("/internal/users/{userId}/active")
+    public ResponseEntity<CartResponseDTO> getActiveCartForUser(@PathVariable Long userId) {
+        log.info("Fetching active cart for user: {}", userId);
+        return ResponseEntity.ok(cartService.getActiveCartForUser(userId));
+    }
+
+    @PostMapping("/internal/users/{userId}/checkout")
+    public ResponseEntity<CartResponseDTO> checkoutInternal(@PathVariable Long userId) {
+        log.info("Completing cart internally for user: {}", userId);
+        return ResponseEntity.ok(cartService.checkout(userId));
+    }
+
     @DeleteMapping("/user/{userId}/delete/{cartId}")
     public ResponseEntity<String> deleteCart(
             @PathVariable Long userId,

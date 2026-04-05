@@ -59,12 +59,33 @@ public class InventoryController {
         boolean available = inventoryService.isStockAvailable(productId, quantity);
         return ResponseEntity.ok(available);
     }
+
+    @GetMapping("/internal/check/{productId}/{quantity}")
+    public ResponseEntity<Boolean> isStockAvailableInternal(@PathVariable Long productId, @PathVariable Integer quantity) {
+        return ResponseEntity.ok(inventoryService.isStockAvailable(productId, quantity));
+    }
+
+    @PostMapping("/internal/reserve/{productId}/{quantity}")
+    public ResponseEntity<Boolean> reserveStockInternal(@PathVariable Long productId, @PathVariable Integer quantity) {
+        return ResponseEntity.ok(inventoryService.reserveStock(productId, quantity));
+    }
+
+    @PostMapping("/internal/release/{productId}/{quantity}")
+    public ResponseEntity<Void> releaseReservedStockInternal(@PathVariable Long productId, @PathVariable Integer quantity) {
+        inventoryService.releaseReservedStock(productId, quantity);
+        return ResponseEntity.noContent().build();
+    }
     
     @PutMapping("/deduct/{productId}/{quantity}")
     public ResponseEntity<InventoryResponseDTO> deductStock(@PathVariable Long productId, @PathVariable Integer quantity) {
         log.info("Deducting stock for product: {}", productId);
         InventoryResponseDTO inventory = inventoryService.deductStock(productId, quantity);
         return ResponseEntity.ok(inventory);
+    }
+
+    @PutMapping("/internal/deduct/{productId}/{quantity}")
+    public ResponseEntity<InventoryResponseDTO> deductStockInternal(@PathVariable Long productId, @PathVariable Integer quantity) {
+        return ResponseEntity.ok(inventoryService.deductStock(productId, quantity));
     }
     
     @PutMapping("/add/{productId}/{quantity}")

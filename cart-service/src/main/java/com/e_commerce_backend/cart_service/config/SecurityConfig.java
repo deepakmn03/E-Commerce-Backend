@@ -39,6 +39,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/cart/status").permitAll()
+                .requestMatchers("/api/cart/internal/**").permitAll()
                 .requestMatchers("/api/cart/**").authenticated()
                 .anyRequest().authenticated()
             )
@@ -47,4 +48,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

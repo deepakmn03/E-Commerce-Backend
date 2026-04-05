@@ -40,6 +40,12 @@ public class ProductController {
         log.info("Fetching product with ID: {}", productId);
         return ResponseEntity.ok(productService.getProductById(productId));
     }
+
+    @GetMapping("/internal/{productId}")
+    public ResponseEntity<ProductResponseDTO> getProductInternal(@PathVariable Long productId) {
+        log.info("Fetching product internally with ID: {}", productId);
+        return ResponseEntity.ok(productService.getProductById(productId));
+    }
     
     @GetMapping("/get/sku/{sku}")
     public ResponseEntity<ProductResponseDTO> getProductBySku(@PathVariable String sku) {
@@ -123,6 +129,13 @@ public class ProductController {
         log.info("Reserving stock - Product: {}, Quantity: {}", productId, quantity);
         return ResponseEntity.ok(productService.reserveStock(productId, quantity));
     }
+
+    @PostMapping("/internal/reserve/{productId}/{quantity}")
+    public ResponseEntity<Boolean> reserveStockInternal(
+            @PathVariable Long productId,
+            @PathVariable Long quantity) {
+        return ResponseEntity.ok(productService.reserveStock(productId, quantity));
+    }
     
     @PostMapping("/release/{productId}/{quantity}")
     public ResponseEntity<Void> releaseStock(
@@ -132,12 +145,27 @@ public class ProductController {
         productService.releaseStock(productId, quantity);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/internal/release/{productId}/{quantity}")
+    public ResponseEntity<Void> releaseStockInternal(
+            @PathVariable Long productId,
+            @PathVariable Long quantity) {
+        productService.releaseStock(productId, quantity);
+        return ResponseEntity.noContent().build();
+    }
     
     @PostMapping("/deduct/{productId}/{quantity}")
     public ResponseEntity<Boolean> deductStock(
             @PathVariable Long productId,
             @PathVariable Long quantity) {
         log.info("Deducting stock - Product: {}, Quantity: {}", productId, quantity);
+        return ResponseEntity.ok(productService.deductStock(productId, quantity));
+    }
+
+    @PostMapping("/internal/deduct/{productId}/{quantity}")
+    public ResponseEntity<Boolean> deductStockInternal(
+            @PathVariable Long productId,
+            @PathVariable Long quantity) {
         return ResponseEntity.ok(productService.deductStock(productId, quantity));
     }
 }
