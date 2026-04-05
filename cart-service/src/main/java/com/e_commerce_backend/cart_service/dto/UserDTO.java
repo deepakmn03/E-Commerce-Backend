@@ -1,4 +1,4 @@
-package com.e_commerce_backend.order_service.dto;
+package com.e_commerce_backend.cart_service.dto;
 
 import lombok.Data;
 

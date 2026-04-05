@@ -47,6 +47,11 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/internal/{userId}")
+    public ResponseEntity<UserResponseDTO> getUserByIdInternal(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.getUserById(userId));
+    }
+
     //Get user by email
     @GetMapping("/get/email/{email}")
     public ResponseEntity<UserResponseDTO> getUserByEmail(@PathVariable String email) {
@@ -82,5 +87,9 @@ public class UserController {
         return ResponseEntity.ok(userService.userExists(userId));
     }
 
-}
+    @GetMapping("/internal/{userId}/exists")
+    public ResponseEntity<Boolean> userExistsInternal(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.userExists(userId));
+    }
 
+}

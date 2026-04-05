@@ -39,6 +39,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/inventory/status").permitAll()
+                .requestMatchers("/api/inventory/internal/**").permitAll()
                 .requestMatchers("/api/inventory/**").authenticated()
                 .anyRequest().authenticated()
             )

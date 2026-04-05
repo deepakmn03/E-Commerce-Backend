@@ -83,6 +83,29 @@ public class InventoryService {
         
         return inventory.getAvailableQuantity() >= quantity;
     }
+
+    public boolean reserveStock(Long productId, Integer quantity) {
+        log.info("Reserving {} units of stock for product: {}", quantity, productId);
+        Inventory inventory = inventoryRepository.findByProductId(productId)
+                .orElseThrow(() -> new InventoryNotFoundException("Product not found: " + productId));
+
+        if (inventory.getAvailableQuantity() < quantity) {
+            return false;
+        }
+
+        inventory.setQuantityReserved(inventory.getQuantityReserved() + quantity);
+        inventoryRepository.save(inventory);
+        return true;
+    }
+
+    public void releaseReservedStock(Long productId, Integer quantity) {
+        log.info("Releasing {} units of reserved stock for product: {}", quantity, productId);
+        Inventory inventory = inventoryRepository.findByProductId(productId)
+                .orElseThrow(() -> new InventoryNotFoundException("Product not found: " + productId));
+
+        inventory.setQuantityReserved(Math.max(0, inventory.getQuantityReserved() - quantity));
+        inventoryRepository.save(inventory);
+    }
     
     /**
      * Deduct stock
@@ -98,6 +121,7 @@ public class InventoryService {
         }
         
         inventory.setQuantityAvailable(inventory.getQuantityAvailable() - quantity);
+        inventory.setQuantityReserved(Math.max(0, inventory.getQuantityReserved() - quantity));
         Inventory updated = inventoryRepository.save(inventory);
         
         log.info("Stock deducted successfully for product: {}", productId);

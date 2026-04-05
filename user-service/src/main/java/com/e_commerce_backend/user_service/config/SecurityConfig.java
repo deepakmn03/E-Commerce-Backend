@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/status").permitAll()
                 .requestMatchers("/api/user/create").permitAll()
                 .requestMatchers("/api/user/login").permitAll()
+                .requestMatchers("/api/user/internal/**").permitAll()
                 .requestMatchers("/api/user/**").authenticated()
                 .anyRequest().authenticated()
             )

@@ -44,6 +44,7 @@ Client → API Gateway (8080) → Eureka Server (8761) → Microservices Cluster
 ## 📚 Documentation
 
 **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Complete setup, deployment, troubleshooting
+**[ARCHITECTURE.md](ARCHITECTURE.md)** - Service diagram, communication map, checkout flow
 
 ## 🔧 Common Commands
 

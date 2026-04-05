@@ -1,6 +1,7 @@
 package com.e_commerce_backend.order_service.dto;
 
-import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequestDTO {
-
-    @NotNull
-    private Long userId;
-
-    private Double orderValue;
-
-    private String paymentMethod;
+public class PaymentRequestDTO {
+    private Long orderId;
+    private BigDecimal amount;
+    private String method;
 }

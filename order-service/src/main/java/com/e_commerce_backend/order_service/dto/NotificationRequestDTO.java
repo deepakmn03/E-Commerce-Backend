@@ -1,6 +1,5 @@
 package com.e_commerce_backend.order_service.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequestDTO {
-
-    @NotNull
+public class NotificationRequestDTO {
     private Long userId;
-
-    private Double orderValue;
-
-    private String paymentMethod;
+    private String type;
+    private String channel;
+    private String recipient;
+    private String subject;
+    private String message;
 }

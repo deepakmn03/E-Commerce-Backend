@@ -32,6 +32,11 @@ public class PaymentController {
         PaymentResponseDTO payment = paymentService.processPayment(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(payment);
     }
+
+    @PostMapping("/internal/process")
+    public ResponseEntity<PaymentResponseDTO> processPaymentInternal(@Valid @RequestBody PaymentRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.processPayment(request));
+    }
     
     @GetMapping("/get/{paymentId}")
     public ResponseEntity<PaymentResponseDTO> getPaymentById(@PathVariable Long paymentId) {

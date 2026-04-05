@@ -31,6 +31,11 @@ public class NotificationController {
         NotificationResponseDTO notification = notificationService.sendNotification(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(notification);
     }
+
+    @PostMapping("/internal/send")
+    public ResponseEntity<NotificationResponseDTO> sendNotificationInternal(@Valid @RequestBody NotificationRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(notificationService.sendNotification(request));
+    }
     
     @GetMapping("/get/{notificationId}")
     public ResponseEntity<NotificationResponseDTO> getNotificationById(@PathVariable Long notificationId) {

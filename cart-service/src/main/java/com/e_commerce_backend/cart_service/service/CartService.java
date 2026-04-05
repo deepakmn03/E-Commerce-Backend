@@ -1,8 +1,13 @@
 package com.e_commerce_backend.cart_service.service;
 
+import com.e_commerce_backend.cart_service.client.InventoryClient;
+import com.e_commerce_backend.cart_service.client.ProductClient;
+import com.e_commerce_backend.cart_service.client.UserClient;
 import com.e_commerce_backend.cart_service.dto.AddToCartRequestDTO;
 import com.e_commerce_backend.cart_service.dto.CartResponseDTO;
+import com.e_commerce_backend.cart_service.dto.ProductDTO;
 import com.e_commerce_backend.cart_service.dto.UpdateCartItemRequestDTO;
+import com.e_commerce_backend.cart_service.dto.UserDTO;
 import com.e_commerce_backend.cart_service.entity.Cart;
 import com.e_commerce_backend.cart_service.entity.CartItem;
 import com.e_commerce_backend.cart_service.entity.CartStatus;
@@ -33,11 +38,21 @@ public class CartService {
     @Autowired
     private CartMapper cartMapper;
 
+    @Autowired
+    private UserClient userClient;
+
+    @Autowired
+    private ProductClient productClient;
+
+    @Autowired
+    private InventoryClient inventoryClient;
+
     /**
      * Get or create user's active cart
      */
     public CartResponseDTO getCart(Long userId) {
         log.info("Fetching cart for user: {}", userId);
+        validateUser(userId);
         Optional<Cart> cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
         
         if (cart.isEmpty()) {
@@ -59,7 +74,12 @@ public class CartService {
     public CartResponseDTO addToCart(Long userId, AddToCartRequestDTO request) {
         log.info("Adding product {} (quantity: {}) to cart for user: {}", 
                  request.getProductId(), request.getQuantity(), userId);
-        
+        validateUser(userId);
+        ProductDTO product = getProductOrThrow(request.getProductId());
+        if (!Boolean.TRUE.equals(product.getIsActive())) {
+            throw new IllegalArgumentException("Product is not active: " + request.getProductId());
+        }
+
         Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
                 .orElseGet(() -> {
                     Cart newCart = new Cart();
@@ -74,17 +94,21 @@ public class CartService {
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
+            reserveStock(request.getProductId(), request.getQuantity());
             item.setQuantity(item.getQuantity() + request.getQuantity());
+            item.setProductName(product.getName());
+            item.setUnitPrice(product.getPrice());
             item.setUpdatedAt(LocalDateTime.now());
             cartItemRepository.save(item);
             log.info("Updated existing cart item: {}", item.getId());
         } else {
+            reserveStock(request.getProductId(), request.getQuantity());
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProductId(request.getProductId());
             newItem.setQuantity(request.getQuantity());
-            newItem.setProductName("Product " + request.getProductId()); // Will be fetched from Product Service
-            newItem.setUnitPrice(BigDecimal.ZERO); // Will be fetched from Product Service
+            newItem.setProductName(product.getName());
+            newItem.setUnitPrice(product.getPrice());
             newItem.setAddedAt(LocalDateTime.now());
             newItem.setUpdatedAt(LocalDateTime.now());
             cart.addItem(newItem);
@@ -109,7 +133,17 @@ public class CartService {
             throw new IllegalArgumentException("Unauthorized: Item does not belong to user");
         }
 
+        int quantityDifference = request.getQuantity() - item.getQuantity();
+        if (quantityDifference > 0) {
+            reserveStock(item.getProductId(), quantityDifference);
+        } else if (quantityDifference < 0) {
+            releaseStock(item.getProductId(), -quantityDifference);
+        }
+
+        ProductDTO product = getProductOrThrow(item.getProductId());
         item.setQuantity(request.getQuantity());
+        item.setProductName(product.getName());
+        item.setUnitPrice(product.getPrice());
         item.setUpdatedAt(LocalDateTime.now());
         cartItemRepository.save(item);
 
@@ -134,6 +168,7 @@ public class CartService {
         }
 
         Cart cart = item.getCart();
+        releaseStock(item.getProductId(), item.getQuantity());
         cart.removeItem(item);
         cartItemRepository.delete(item);
 
@@ -151,6 +186,7 @@ public class CartService {
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + userId));
 
         List<CartItem> items = cartItemRepository.findByCartId(cart.getId());
+        items.forEach(item -> releaseStock(item.getProductId(), item.getQuantity()));
         cartItemRepository.deleteAll(items);
         
         cart.getItems().clear();
@@ -166,6 +202,7 @@ public class CartService {
      */
     public CartResponseDTO checkout(Long userId) {
         log.info("Checking out cart for user: {}", userId);
+        validateUser(userId);
         
         Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for user: " + userId));
@@ -179,6 +216,14 @@ public class CartService {
         cart = cartRepository.save(cart);
 
         log.info("Cart checked out for user: {}", userId);
+        return cartMapper.toResponseDTO(cart);
+    }
+
+    public CartResponseDTO getActiveCartForUser(Long userId) {
+        log.info("Fetching active cart without creating one for user: {}", userId);
+        validateUser(userId);
+        Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE)
+                .orElseThrow(() -> new IllegalArgumentException("Active cart not found for user: " + userId));
         return cartMapper.toResponseDTO(cart);
     }
 
@@ -207,7 +252,53 @@ public class CartService {
             throw new IllegalArgumentException("Unauthorized: Cart does not belong to user");
         }
 
+        if (cart.getStatus() == CartStatus.ACTIVE) {
+            cart.getItems().forEach(item -> releaseStock(item.getProductId(), item.getQuantity()));
+        }
         cartRepository.delete(cart);
         log.info("Cart deleted successfully");
+    }
+
+    private void validateUser(Long userId) {
+        UserDTO user = userClient.getUserById(userId);
+        if (user == null || user.getUserId() == null) {
+            throw new IllegalArgumentException("User not found: " + userId);
+        }
+    }
+
+    private ProductDTO getProductOrThrow(Long productId) {
+        ProductDTO product = productClient.getProductById(productId);
+        if (product == null || product.getProductId() == null) {
+            throw new IllegalArgumentException("Product not found: " + productId);
+        }
+        return product;
+    }
+
+    private void reserveStock(Long productId, int quantity) {
+        Boolean inventoryAvailable = inventoryClient.isStockAvailable(productId, quantity);
+        if (!Boolean.TRUE.equals(inventoryAvailable)) {
+            throw new IllegalArgumentException("Insufficient inventory for product: " + productId);
+        }
+
+        Boolean productReserved = productClient.reserveStock(productId, (long) quantity);
+        if (!Boolean.TRUE.equals(productReserved)) {
+            throw new IllegalArgumentException("Unable to reserve product stock for product: " + productId);
+        }
+
+        try {
+            Boolean inventoryReserved = inventoryClient.reserveStock(productId, quantity);
+            if (!Boolean.TRUE.equals(inventoryReserved)) {
+                productClient.releaseStock(productId, (long) quantity);
+                throw new IllegalArgumentException("Unable to reserve inventory for product: " + productId);
+            }
+        } catch (RuntimeException ex) {
+            productClient.releaseStock(productId, (long) quantity);
+            throw ex;
+        }
+    }
+
+    private void releaseStock(Long productId, int quantity) {
+        productClient.releaseStock(productId, (long) quantity);
+        inventoryClient.releaseStock(productId, quantity);
     }
 }
