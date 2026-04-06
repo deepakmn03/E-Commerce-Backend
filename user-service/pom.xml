@@ -30,6 +30,7 @@
 		<java.version>17</java.version>
 		<spring-cloud.version>2023.0.2</spring-cloud.version>
 		<lombok.version>1.18.42</lombok.version>
+		<mapstruct.version>1.6.0</mapstruct.version>
 	</properties>
 
 	<dependencyManagement>
@@ -89,7 +90,7 @@
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.6.0</version>
+			<version>${mapstruct.version}</version>
     	</dependency>
 
 		<dependency>
@@ -168,7 +169,7 @@
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>1.5.5.Final</version>
+							<version>${mapstruct.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>

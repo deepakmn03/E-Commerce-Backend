@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce Backend Test UI</title>
+  <style>
+    :root {
+      --bg: #f4efe7;
+      --panel: #fffdf8;
+      --panel-alt: #f7f2e8;
+      --ink: #1f2a24;
+      --muted: #6a746c;
+      --accent: #166534;
+      --accent-soft: #d7f2df;
+      --line: #d9d1c4;
+      --danger: #b42318;
+      --danger-soft: #fee4e2;
+      --shadow: 0 18px 40px rgba(31, 42, 36, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background:
+        radial-gradient(circle at top left, rgba(22, 101, 52, 0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(180, 35, 24, 0.08), transparent 24%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    .shell {
+      width: min(1400px, calc(100% - 32px));
+      margin: 28px auto 56px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(22, 101, 52, 0.96), rgba(36, 75, 58, 0.92));
+      color: #f8f7f2;
+      padding: 28px;
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -70px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(248, 247, 242, 0.86);
+      font-size: 1.02rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
+    }
+
+    .sidebar {
+      padding: 18px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .sidebar .group + .group {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    label {
+      font-size: 0.86rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 12px 13px;
+      font: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(22, 101, 52, 0.12);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .secondary {
+      background: var(--panel-alt);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .danger {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border: 1px solid rgba(180, 35, 24, 0.15);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      padding: 18px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card-header p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+    }
+
+    .flow-step {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #fbf7ef);
+    }
+
+    .flow-step strong {
+      display: block;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .step-no {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .kv {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .kv div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+    }
+
+    .kv code {
+      color: var(--accent);
+      word-break: break-word;
+    }
+
+    .response-panel {
+      overflow: hidden;
+    }
+
+    .response-head {
+      padding: 16px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.86rem;
+      background: var(--panel-alt);
+      border: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .status.ok {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-color: rgba(22, 101, 52, 0.18);
+    }
+
+    .status.error {
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-color: rgba(180, 35, 24, 0.18);
+    }
+
+    pre {
+      margin: 0;
+      padding: 18px;
+      background: #1c2320;
+      color: #e7f0eb;
+      overflow: auto;
+      min-height: 220px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-step {
+        grid-template-columns: auto 1fr;
+      }
+
+      .flow-step button {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1>E-Commerce Backend Test Console</h1>
+      <p>
+        This page talks directly to your gateway and helps you run the full microservice flow:
+        create a user, log in, create catalog data, add items to cart, place an order, and inspect side effects.
+      </p>
+      <div class="hero-meta">
+        <div class="pill">Gateway UI: same origin, no CORS setup needed</div>
+        <div class="pill">State persists in browser storage</div>
+        <div class="pill">Built for your current Spring services</div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <aside class="panel sidebar">
+        <div class="group">
+          <h2>Connection</h2>
+          <div class="field">
+            <label for="baseUrl">Base URL</label>
+            <input id="baseUrl" value="" />
+          </div>
+          <div class="actions">
+            <button class="secondary" id="saveConfig">Save Settings</button>
+            <button class="secondary" id="checkHealth">Check Health</button>
+          </div>
+          <p class="hint">Default is the same origin serving this page, usually <code>http://localhost:8080</code>.</p>
+        </div>
+
+        <div class="group">
+          <h2>Session State</h2>
+          <div class="kv">
+            <div><span>JWT Token</span><code id="tokenPreview">Not set</code></div>
+            <div><span>User ID</span><code id="userIdPreview">-</code></div>
+            <div><span>Product ID</span><code id="productIdPreview">-</code></div>
+            <div><span>Inventory ID</span><code id="inventoryIdPreview">-</code></div>
+            <div><span>Cart ID</span><code id="cartIdPreview">-</code></div>
+            <div><span>Cart Item ID</span><code id="cartItemIdPreview">-</code></div>
+            <div><span>Order ID</span><code id="orderIdPreview">-</code></div>
+          </div>
+          <div class="actions">
+            <button class="danger" id="clearState">Clear Saved State</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="panel card">
+          <div class="card-header">
+            <div>
+              <h2>End-to-End Flow</h2>
+              <p>Run the happy path in order or use the forms below for individual requests.</p>
+            </div>
+          </div>
+          <div class="flow">
+            <div class="flow-step">
+              <div class="step-no">1</div>
+              <div>
+                <strong>Create user</strong>
+                <span>Registers a test user in `user-service`.</span>
+              </div>
+              <button class="primary" data-action="createUser">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">2</div>
+              <div>
+                <strong>Login user</strong>
+                <span>Stores the JWT token and user id for authenticated requests.</span>
+              </div>
+              <button class="primary" data-action="loginUser">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">3</div>
+              <div>
+                <strong>Create product</strong>
+                <span>Adds a product in `product-service` through the gateway.</span>
+              </div>
+              <button class="primary" data-action="createProduct">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">4</div>
+              <div>
+                <strong>Create inventory</strong>
+                <span>Creates stock for the product in `inventory-service`.</span>
+              </div>
+              <button class="primary" data-action="createInventory">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">5</div>
+              <div>
+                <strong>Add product to cart</strong>
+                <span>Triggers cart, product, and inventory reservation logic.</span>
+              </div>
+              <button class="primary" data-action="addToCart">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">6</div>
+              <div>
+                <strong>Create order</strong>
+                <span>Runs payment, stock deduction, cart checkout, and notifications.</span>
+              </div>
+              <button class="primary" data-action="createOrder">Run</button>
+            </div>
+            <div class="flow-step">
+              <div class="step-no">7</div>
+              <div>
+                <strong>Verify side effects</strong>
+                <span>Checks payment, notifications, inventory, and order state.</span>
+              </div>
+              <button class="secondary" data-action="verifyFlow">Run</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="runHappyPath">Run Complete Happy Path</button>
+          </div>
+        </section>
+
+        <section class="grid">
+          <section class="panel card">
+            <div class="card-header">
+              <div>
+                <h2>User</h2>
+                <p>Create and authenticate a test user.</p>
+              </div>
+            </div>
+            <div class="field"><label for="firstName">First Name</label><input id="firstName" value="John"></div>
+            <div class="field"><label for="lastName">Last Name</label><input id="lastName" value="Doe"></div>
+            <div class="field"><label for="email">Email</label><input id="email" value="john.doe@example.com"></div>
+            <div class="field"><label for="password">Password</label><input id="password" type="password" value="Password123"></div>
+            <div class="field"><label for="phone">Phone</label><input id="phone" value="9876543210"></div>
+            <div class="field"><label for="address">Address</label><input id="address" value="221B Baker Street"></div>
+            <div class="field"><label for="city">City</label><input id="city" value="Bengaluru"></div>
+            <div class="field"><label for="state">State</label><input id="state" value="Karnataka"></div>
+            <div class="field"><label for="zipCode">Zip Code</label><input id="zipCode" value="560001"></div>
+            <div class="field"><label for="country">Country</label><input id="country" value="India"></div>
+            <div class="actions">
+              <button class="primary" data-action="createUser">Create User</button>
+              <button class="secondary" data-action="loginUser">Login</button>
+              <button class="secondary" data-action="getUser">Get User</button>
+            </div>
+          </section>
+
+          <section class="panel card">
+            <div class="card-header">
+              <div>
+                <h2>Catalog</h2>
+                <p>Create a product and its inventory.</p>
+              </div>
+            </div>
+            <div class="field"><label for="sku">SKU</label><input id="sku" value="SKU-IPHONE-001"></div>
+            <div class="field"><label for="productName">Product Name</label><input id="productName" value="iPhone 16 Pro"></div>
+            <div class="field"><label for="description">Description</label><input id="description" value="Latest iPhone flagship smartphone with premium features"></div>
+            <div class="field"><label for="category">Category</label><input id="category" value="Electronics"></div>
+            <div class="field"><label for="price">Price</label><input id="price" type="number" step="0.01" value="149999.00"></div>
+            <div class="field"><label for="stockQuantity">Product Stock Quantity</label><input id="stockQuantity" type="number" value="25"></div>
+            <div class="field"><label for="imageUrl">Image URL</label><input id="imageUrl" value="https://example.com/images/iphone-16-pro.jpg"></div>
+            <div class="field"><label for="inventoryQuantity">Inventory Quantity Available</label><input id="inventoryQuantity" type="number" value="25"></div>
+            <div class="field"><label for="reorderLevel">Reorder Level</label><input id="reorderLevel" type="number" value="5"></div>
+            <div class="actions">
+              <button class="primary" data-action="createProduct">Create Product</button>
+              <button class="secondary" data-action="getProduct">Get Product</button>
+              <button class="secondary" data-action="createInventory">Create Inventory</button>
+              <button class="secondary" data-action="getInventory">Get Inventory</button>
+            </div>
+          </section>
+
+          <section class="panel card">
+            <div class="card-header">
+              <div>
+                <h2>Cart</h2>
+                <p>Exercise cart creation, add, update, and fetch operations.</p>
+              </div>
+            </div>
+            <div class="field"><label for="cartQuantity">Add Quantity</label><input id="cartQuantity" type="number" value="2"></div>
+            <div class="field"><label for="updatedCartQuantity">Updated Quantity</label><input id="updatedCartQuantity" type="number" value="3"></div>
+            <div class="actions">
+              <button class="secondary" data-action="getCart">Get Or Create Cart</button>
+              <button class="primary" data-action="addToCart">Add To Cart</button>
+              <button class="secondary" data-action="updateCartItem">Update Cart Item</button>
+              <button class="secondary" data-action="clearCart">Clear Cart</button>
+            </div>
+          </section>
+
+          <section class="panel card">
+            <div class="card-header">
+              <div>
+                <h2>Order</h2>
+                <p>Trigger the orchestration path and inspect side effects.</p>
+              </div>
+            </div>
+            <div class="field">
+              <label for="paymentMethod">Payment Method</label>
+              <select id="paymentMethod">
+                <option>UPI</option>
+                <option>CREDIT_CARD</option>
+                <option>DEBIT_CARD</option>
+                <option>NET_BANKING</option>
+                <option>WALLET</option>
+                <option>COD</option>
+              </select>
+            </div>
+            <div class="actions">
+              <button class="primary" data-action="createOrder">Create Order</button>
+              <button class="secondary" data-action="getOrder">Get Order</button>
+              <button class="secondary" data-action="getPaymentByOrder">Get Payment</button>
+              <button class="secondary" data-action="getNotifications">Get Notifications</button>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel response-panel">
+          <div class="response-head">
+            <div>
+              <h2>Last Response</h2>
+              <p id="responseMeta" class="hint">Run a request to inspect the raw gateway response.</p>
+            </div>
+            <div class="status" id="responseStatus">Idle</div>
+          </div>
+          <pre id="responseOutput">{
+  "message": "Waiting for request..."
+}</pre>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const storageKey = "ecommerce-test-ui-state";
+    const defaultState = {
+      baseUrl: window.location.origin,
+      jwtToken: "",
+      userId: "",
+      productId: "",
+      inventoryId: "",
+      cartId: "",
+      cartItemId: "",
+      orderId: ""
+    };
+
+    const state = { ...defaultState, ...loadState() };
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+      renderState();
+    }
+
+    function renderState() {
+      document.getElementById("baseUrl").value = state.baseUrl || window.location.origin;
+      document.getElementById("tokenPreview").textContent = state.jwtToken ? state.jwtToken.slice(0, 20) + "..." : "Not set";
+      document.getElementById("userIdPreview").textContent = state.userId || "-";
+      document.getElementById("productIdPreview").textContent = state.productId || "-";
+      document.getElementById("inventoryIdPreview").textContent = state.inventoryId || "-";
+      document.getElementById("cartIdPreview").textContent = state.cartId || "-";
+      document.getElementById("cartItemIdPreview").textContent = state.cartItemId || "-";
+      document.getElementById("orderIdPreview").textContent = state.orderId || "-";
+    }
+
+    function setResponse(status, data, meta = "") {
+      const badge = document.getElementById("responseStatus");
+      const output = document.getElementById("responseOutput");
+      const responseMeta = document.getElementById("responseMeta");
+      badge.textContent = status.label;
+      badge.className = "status " + (status.kind || "");
+      output.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      responseMeta.textContent = meta || "Latest gateway response shown below.";
+    }
+
+    function getInput(id) {
+      return document.getElementById(id).value;
+    }
+
+    function parseJsonSafe(text) {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
+    }
+
+    async function apiRequest(method, path, body, options = {}) {
+      const headers = {};
+      if (body !== undefined && body !== null) {
+        headers["Content-Type"] = "application/json";
+      }
+      if (options.auth !== false && state.jwtToken) {
+        headers["Authorization"] = `Bearer ${state.jwtToken}`;
+      }
+
+      const url = `${state.baseUrl}${path}`;
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: body !== undefined && body !== null ? JSON.stringify(body) : undefined
+      });
+
+      const raw = await response.text();
+      const data = parseJsonSafe(raw);
+      setResponse(
+        {
+          label: `${response.status} ${response.statusText}`,
+          kind: response.ok ? "ok" : "error"
+        },
+        data,
+        `${method} ${path}`
+      );
+
+      if (!response.ok) {
+        throw new Error(typeof data === "string" ? data : JSON.stringify(data));
+      }
+
+      return data;
+    }
+
+    function syncSettingsToState() {
+      state.baseUrl = getInput("baseUrl").trim() || window.location.origin;
+      saveState();
+    }
+
+    function userPayload() {
+      return {
+        firstName: getInput("firstName"),
+        lastName: getInput("lastName"),
+        email: getInput("email"),
+        password: getInput("password"),
+        phone: getInput("phone"),
+        address: getInput("address"),
+        city: getInput("city"),
+        state: getInput("state"),
+        zipCode: getInput("zipCode"),
+        country: getInput("country")
+      };
+    }
+
+    function productPayload() {
+      return {
+        sku: getInput("sku"),
+        name: getInput("productName"),
+        description: getInput("description"),
+        category: getInput("category"),
+        price: Number(getInput("price")),
+        stockQuantity: Number(getInput("stockQuantity")),
+        imageUrl: getInput("imageUrl")
+      };
+    }
+
+    async function createUser() {
+      const data = await apiRequest("POST", "/api/user/create", userPayload(), { auth: false });
+      if (data.userId) {
+        state.userId = data.userId;
+        saveState();
+      }
+      return data;
+    }
+
+    async function loginUser() {
+      const data = await apiRequest("POST", "/api/user/login", {
+        email: getInput("email"),
+        password: getInput("password")
+      }, { auth: false });
+      if (data.token) {
+        state.jwtToken = data.token;
+      }
+      if (data.userId) {
+        state.userId = data.userId;
+      }
+      saveState();
+      return data;
+    }
+
+    async function getUser() {
+      ensureState("userId", "User ID is required. Create or log in a user first.");
+      return apiRequest("GET", `/api/user/get/${state.userId}`);
+    }
+
+    async function createProduct() {
+      const data = await apiRequest("POST", "/api/product/create", productPayload());
+      if (data.productId) {
+        state.productId = data.productId;
+        saveState();
+      }
+      return data;
+    }
+
+    async function getProduct() {
+      ensureState("productId", "Product ID is required. Create a product first.");
+      return apiRequest("GET", `/api/product/get/${state.productId}`);
+    }
+
+    async function createInventory() {
+      ensureState("productId", "Product ID is required before creating inventory.");
+      const data = await apiRequest("POST", "/api/inventory/create", {
+        productId: Number(state.productId),
+        quantityAvailable: Number(getInput("inventoryQuantity")),
+        reorderLevel: Number(getInput("reorderLevel"))
+      });
+      if (data.inventoryId) {
+        state.inventoryId = data.inventoryId;
+        saveState();
+      }
+      return data;
+    }
+
+    async function getInventory() {
+      ensureState("productId", "Product ID is required to fetch inventory.");
+      return apiRequest("GET", `/api/inventory/product/${state.productId}`);
+    }
+
+    async function getCart() {
+      ensureState("userId", "User ID is required. Create or log in a user first.");
+      const data = await apiRequest("GET", `/api/cart/user/${state.userId}`);
+      if (data.id) {
+        state.cartId = data.id;
+      }
+      if (data.items && data.items.length > 0) {
+        state.cartItemId = data.items[0].id;
+      }
+      saveState();
+      return data;
+    }
+
+    async function addToCart() {
+      ensureState("userId", "User ID is required.");
+      ensureState("productId", "Product ID is required.");
+      const data = await apiRequest("POST", `/api/cart/user/${state.userId}/add`, {
+        productId: Number(state.productId),
+        quantity: Number(getInput("cartQuantity"))
+      });
+      if (data.id) {
+        state.cartId = data.id;
+      }
+      if (data.items && data.items.length > 0) {
+        state.cartItemId = data.items[0].id;
+      }
+      saveState();
+      return data;
+    }
+
+    async function updateCartItem() {
+      ensureState("userId", "User ID is required.");
+      ensureState("cartItemId", "Cart item ID is required. Add a product to cart first.");
+      const data = await apiRequest("PATCH", `/api/cart/user/${state.userId}/item/${state.cartItemId}`, {
+        quantity: Number(getInput("updatedCartQuantity"))
+      });
+      if (data.items && data.items.length > 0) {
+        state.cartItemId = data.items[0].id;
+      }
+      saveState();
+      return data;
+    }
+
+    async function clearCart() {
+      ensureState("userId", "User ID is required.");
+      const data = await apiRequest("POST", `/api/cart/user/${state.userId}/clear`);
+      state.cartItemId = "";
+      saveState();
+      return data;
+    }
+
+    async function createOrder() {
+      ensureState("userId", "User ID is required.");
+      const data = await apiRequest("POST", "/api/order/create", {
+        userId: Number(state.userId),
+        paymentMethod: getInput("paymentMethod")
+      });
+      if (data.orderId) {
+        state.orderId = data.orderId;
+      }
+      saveState();
+      return data;
+    }
+
+    async function getOrder() {
+      ensureState("orderId", "Order ID is required. Create an order first.");
+      return apiRequest("GET", `/api/order/get/${state.orderId}`);
+    }
+
+    async function getPaymentByOrder() {
+      ensureState("orderId", "Order ID is required.");
+      return apiRequest("GET", `/api/payment/order/${state.orderId}`);
+    }
+
+    async function getNotifications() {
+      ensureState("userId", "User ID is required.");
+      return apiRequest("GET", `/api/notification/user/${state.userId}`);
+    }
+
+    async function checkHealth() {
+      return apiRequest("GET", "/api/user/status", null, { auth: false });
+    }
+
+    async function verifyFlow() {
+      ensureState("orderId", "Order ID is required. Create an order first.");
+      ensureState("productId", "Product ID is required.");
+      const [order, payment, notifications, inventory, product] = await Promise.all([
+        apiRequest("GET", `/api/order/get/${state.orderId}`),
+        apiRequest("GET", `/api/payment/order/${state.orderId}`),
+        apiRequest("GET", `/api/notification/user/${state.userId}`),
+        apiRequest("GET", `/api/inventory/product/${state.productId}`),
+        apiRequest("GET", `/api/product/get/${state.productId}`)
+      ]);
+
+      const summary = {
+        order,
+        payment,
+        notifications,
+        inventory,
+        product
+      };
+      setResponse({ label: "Verification Complete", kind: "ok" }, summary, "Composite verification");
+      return summary;
+    }
+
+    async function runHappyPath() {
+      await createUser();
+      await loginUser();
+      await createProduct();
+      await createInventory();
+      await getCart();
+      await addToCart();
+      await createOrder();
+      await verifyFlow();
+    }
+
+    function ensureState(key, message) {
+      if (!state[key]) {
+        throw new Error(message);
+      }
+    }
+
+    const actions = {
+      createUser,
+      loginUser,
+      getUser,
+      createProduct,
+      getProduct,
+      createInventory,
+      getInventory,
+      getCart,
+      addToCart,
+      updateCartItem,
+      clearCart,
+      createOrder,
+      getOrder,
+      getPaymentByOrder,
+      getNotifications,
+      verifyFlow,
+      checkHealth
+    };
+
+    async function invoke(actionName, button) {
+      try {
+        syncSettingsToState();
+        if (button) {
+          button.disabled = true;
+        }
+        await actions[actionName]();
+      } catch (error) {
+        setResponse({ label: "Request Failed", kind: "error" }, { error: error.message || String(error) }, actionName);
+      } finally {
+        if (button) {
+          button.disabled = false;
+        }
+      }
+    }
+
+    document.querySelectorAll("[data-action]").forEach((button) => {
+      button.addEventListener("click", () => invoke(button.dataset.action, button));
+    });
+
+    document.getElementById("saveConfig").addEventListener("click", () => {
+      syncSettingsToState();
+      setResponse({ label: "Saved", kind: "ok" }, { baseUrl: state.baseUrl }, "Configuration saved");
+    });
+
+    document.getElementById("checkHealth").addEventListener("click", async (event) => {
+      await invoke("checkHealth", event.currentTarget);
+    });
+
+    document.getElementById("clearState").addEventListener("click", () => {
+      Object.assign(state, defaultState, { baseUrl: getInput("baseUrl").trim() || window.location.origin });
+      saveState();
+      setResponse({ label: "State Cleared", kind: "ok" }, state, "Saved browser state cleared");
+    });
+
+    document.getElementById("runHappyPath").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      try {
+        syncSettingsToState();
+        button.disabled = true;
+        await runHappyPath();
+      } catch (error) {
+        setResponse({ label: "Happy Path Failed", kind: "error" }, { error: error.message || String(error) }, "Run Complete Happy Path");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    renderState();
+    setResponse({ label: "Ready", kind: "ok" }, {
+      message: "Open your services, then start with Health Check or Run Complete Happy Path."
+    }, "UI initialized");
+  </script>
+</body>
+</html>
