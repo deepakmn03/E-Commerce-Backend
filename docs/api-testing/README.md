@@ -8,6 +8,7 @@ All API testing resources organized for easy access and team collaboration.
 |------|---------|
 | **openapi.yaml** | Complete OpenAPI 3.0 API specification |
 | **requests.http** | Manual REST Client test requests (50+) |
+| **E-Commerce-Backend-End-to-End.postman_collection.json** | Postman collection for complete gateway-based end-to-end flow |
 | **.env.example** | Configuration template |
 | **API_TESTING_GUIDE.md** | Comprehensive strategy guide |
 | **API_TESTING_QUICK_REFERENCE.md** | Quick reference |
@@ -33,6 +34,12 @@ cp .env.example .env
 - Go to https://editor.swagger.io/
 - Paste content from `openapi.yaml`
 - Get interactive API docs
+
+### 5. Run Postman End-to-End Flow
+- Import `E-Commerce-Backend-End-to-End.postman_collection.json` into Postman
+- Set `baseUrl` to `http://localhost:8080` if needed
+- Run requests in folder order from `0. Health Checks` to `5. Side-Effect Verification`
+- The collection saves `jwtToken`, `userId`, `productId`, `inventoryId`, `cartItemId`, and `orderId` automatically
 
 ## 📚 Documentation
 
