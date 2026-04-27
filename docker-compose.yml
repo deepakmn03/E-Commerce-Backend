@@ -310,6 +310,7 @@ networks:
   ecommerce:
     driver: bridge
 
+# volumes for the e-commerce backend services
 volumes:
   user_db_data:
   order_db_data:
