@@ -2,6 +2,8 @@
 
 echo "####### Build images for E-commerce backend #########"
 
+echo "####### Buiiding each image one after other #########"
+
 echo "Building user-service image"
 docker build -t ecom-backend/user-service:v1.0.0 user-service/
 
